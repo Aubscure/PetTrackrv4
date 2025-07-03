@@ -1,22 +1,37 @@
-# frontend/components/pet_card.py
 import os
+import random
 from PIL import Image
 import customtkinter as ctk
 from frontend.style.style import (
-    create_label, 
-    create_frame, 
+    create_label,
+    create_frame,
     get_subtitle_font,
     get_card_title_font,
     get_card_detail_font,
     get_card_icon_font
 )
 
+def generate_pastel_color():
+    # Generate a random pastel color
+    base_color = random.randint(200, 230)  # Base value for pastel colors
+    red = base_color + random.randint(0, 55)
+    green = base_color + random.randint(0, 55)
+    blue = base_color + random.randint(0, 55)
+    # Ensure the values are within the valid range
+    red = min(255, red)
+    green = min(255, green)
+    blue = min(255, blue)
+    # Convert to hex color code
+    return f"#{red:02x}{green:02x}{blue:02x}"
+
 class PetCard(ctk.CTkFrame):
 
     def __init__(self, master, pet, image_store, owner=None, on_click=None, *args, **kwargs):
+        # Generate a random pastel color for the card background
+        pastel_color = generate_pastel_color()
         super().__init__(
             master,
-            fg_color="white",
+            fg_color=pastel_color,  # Use the generated pastel color
             corner_radius=16,
             border_width=2,
             border_color="#e0e0e0",
@@ -29,6 +44,7 @@ class PetCard(ctk.CTkFrame):
         self.on_click = on_click
         self.configure(width=260)
         self.columnconfigure(0, weight=1)
+        self._original_fg_color = pastel_color  # Save the original color for hover effects
         self._build_card()
 
         self._bind_recursive(self)
@@ -37,9 +53,9 @@ class PetCard(ctk.CTkFrame):
         widget.bind("<Button-1>", self._handle_click)
         # Bind hover events to all widgets
         def on_enter(e):
-            self.configure(border_color="#3b8ed0", fg_color="#f7faff")
+            self.configure(border_color="#3b8ed0", fg_color="#d1e8ff")  # Light blue pastel color on hover
         def on_leave(e):
-            self.configure(border_color="#e0e0e0", fg_color="white")
+            self.configure(border_color="#e0e0e0", fg_color=self._original_fg_color)
         widget.bind("<Enter>", on_enter)
         widget.bind("<Leave>", on_leave)
         for child in widget.winfo_children():
@@ -51,17 +67,17 @@ class PetCard(ctk.CTkFrame):
 
     def _build_card(self):
         # Main container with consistent padding
-        container = create_frame(self, "white")
+        container = create_frame(self, self._original_fg_color)  # Use the same pastel color for the container
         container.pack(padx=12, pady=12, fill="both", expand=True)
-        
+
         # Image section - larger and centered
         thumbnail = self._get_pet_thumbnail()
-        image_frame = create_frame(container, "white")
+        image_frame = create_frame(container, self._original_fg_color)
         image_frame.pack(pady=(0, 10))
-        
+
         label_image = ctk.CTkLabel(
-            image_frame, 
-            image=thumbnail, 
+            image_frame,
+            image=thumbnail,
             text="",
             compound="top"
         )
@@ -76,11 +92,11 @@ class PetCard(ctk.CTkFrame):
             ).pack(pady=(8, 0))
 
         # Info section
-        info_frame = create_frame(container, "white")
+        info_frame = create_frame(container, self._original_fg_color)
         info_frame.pack(fill="x")
 
         # Name with larger font and paw emoji
-        name_frame = create_frame(info_frame, "white")
+        name_frame = create_frame(info_frame, self._original_fg_color)
         name_frame.pack(pady=(0, 8))
         ctk.CTkLabel(
             name_frame,
@@ -88,82 +104,81 @@ class PetCard(ctk.CTkFrame):
             font=get_card_icon_font(),
         ).pack(side="left", padx=(0, 5))
         label_name = create_label(
-            name_frame, 
-            self.pet.name, 
+            name_frame,
+            self.pet.name,
             font=get_card_title_font()
         )
         label_name.pack(side="left")
 
         # Details with icon-text pairs
-        details_frame = create_frame(info_frame, "white")
+        details_frame = create_frame(info_frame, self._original_fg_color)
         details_frame.pack(fill="x", padx=8)
 
         # Breed row
-        breed_row = create_frame(details_frame, "white")
+        breed_row = create_frame(details_frame, self._original_fg_color)
         breed_row.pack(fill="x", pady=3)
         ctk.CTkLabel(
-            breed_row, 
-            text="🐶", 
+            breed_row,
+            text="🐶",
             font=get_card_icon_font(),
             width=24,
             anchor="w"
         ).pack(side="left")
         create_label(
-            breed_row, 
-            self.pet.breed or "Unknown", 
+            breed_row,
+            self.pet.breed or "Unknown",
             font=get_card_detail_font(),
             anchor="w"
         ).pack(side="left", padx=5)
 
         # Birthdate row
-        birth_row = create_frame(details_frame, "white")
+        birth_row = create_frame(details_frame, self._original_fg_color)
         birth_row.pack(fill="x", pady=3)
         ctk.CTkLabel(
-            birth_row, 
-            text="📅", 
+            birth_row,
+            text="📅",
             font=get_card_icon_font(),
             width=24,
             anchor="w"
         ).pack(side="left")
         create_label(
-            birth_row, 
-            self.pet.birthdate, 
+            birth_row,
+            self.pet.birthdate,
             font=get_card_detail_font(),
             anchor="w"
         ).pack(side="left", padx=5)
 
         # Age row
-        age_row = create_frame(details_frame, "white")
+        age_row = create_frame(details_frame, self._original_fg_color)
         age_row.pack(fill="x", pady=3)
         ctk.CTkLabel(
-            age_row, 
-            text="🕒", 
+            age_row,
+            text="🕒",
             font=get_card_icon_font(),
             width=24,
             anchor="w"
         ).pack(side="left")
         create_label(
-            age_row, 
-            self.pet.age(), 
+            age_row,
+            self.pet.age(),
             font=get_card_detail_font(),
             anchor="w"
         ).pack(side="left", padx=5)
 
         # Owner row (only if owner exists)
         if self.owner:
-            
-            owner_row = create_frame(details_frame, "white")
+            owner_row = create_frame(details_frame, self._original_fg_color)
             owner_row.pack(fill="x", pady=3)
             ctk.CTkLabel(
-                owner_row, 
-                text="👤", 
+                owner_row,
+                text="👤",
                 font=get_card_icon_font(),
                 width=24,
                 anchor="w"
             ).pack(side="left")
             create_label(
-                owner_row, 
-                f"{self.owner.name} ({self.owner.contact_number})", 
+                owner_row,
+                f"{self.owner.name} ({self.owner.contact_number})",
                 font=get_card_detail_font(),
                 anchor="w"
             ).pack(side="left", padx=5)

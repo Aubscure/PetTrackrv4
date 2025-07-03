@@ -10,13 +10,27 @@ from frontend.style.style import (
 )
 from backend.controllers.vaccination_controller import VaccinationController
 from backend.controllers.vet_visit_controller import VetVisitController
+import random
 
 class PetCardWithRecords(PetCard):
     def __init__(self, master, pet, image_store, owner=None, on_click=None, *args, **kwargs):
         self.vaccinations = VaccinationController().get_by_pet_id(pet.id)
         self.vet_visits = VetVisitController().get_by_pet_id(pet.id)
         self.on_click = on_click  # Save the callback
+        # Generate a random pastel color for the card background
+        self._pastel_color = self.generate_pastel_color()
         super().__init__(master, pet, image_store, owner, on_click, *args, **kwargs)
+
+    @staticmethod
+    def generate_pastel_color():
+        base_color = random.randint(200, 230)
+        red = base_color + random.randint(0, 55)
+        green = base_color + random.randint(0, 55)
+        blue = base_color + random.randint(0, 55)
+        red = min(255, red)
+        green = min(255, green)
+        blue = min(255, blue)
+        return f"#{red:02x}{green:02x}{blue:02x}"
 
     def _get_pet_thumbnail(self):
         try:
@@ -55,21 +69,24 @@ class PetCardWithRecords(PetCard):
             return thumb
 
     def _build_card(self):
-        # Main container
-        container = create_frame(self, "white")
+        # Main container with pastel background
+        container = create_frame(self, self._pastel_color)
         container.pack(padx=12, pady=12, fill="both", expand=True)
         self._bind_click(container)  # Make the card clickable
 
         # Horizontal layout: left (details), right (image)
-        main_row = create_frame(container, "white")
+        main_row = create_frame(container)
+        main_row.configure(fg_color=self._pastel_color)
         main_row.pack(fill="both", expand=True)
 
         # --- LEFT: Info Section ---
-        info_frame = create_frame(main_row, "white")
+        info_frame = create_frame(main_row)
+        info_frame.configure(fg_color=self._pastel_color)
         info_frame.pack(side="left", fill="both", expand=True, padx=(0, 10))
 
         # Name with icon
-        name_frame = create_frame(info_frame, "white")
+        name_frame = create_frame(info_frame)
+        name_frame.configure(fg_color=self._pastel_color)
         name_frame.pack(pady=(0, 8), anchor="w")
         ctk.CTkLabel(
             name_frame,
@@ -84,11 +101,13 @@ class PetCardWithRecords(PetCard):
         label_name.pack(side="left")
 
         # Details with icon-text pairs
-        details_frame = create_frame(info_frame, "white")
+        details_frame = create_frame(info_frame)
+        details_frame.configure(fg_color=self._pastel_color)
         details_frame.pack(fill="x", padx=8)
 
         # Breed row
-        breed_row = create_frame(details_frame, "white")
+        breed_row = create_frame(details_frame)
+        breed_row.configure(fg_color=self._pastel_color)
         breed_row.pack(fill="x", pady=3)
         ctk.CTkLabel(
             breed_row,
@@ -105,7 +124,8 @@ class PetCardWithRecords(PetCard):
         ).pack(side="left", padx=5)
 
         # Birthdate row
-        birth_row = create_frame(details_frame, "white")
+        birth_row = create_frame(details_frame)
+        birth_row.configure(fg_color=self._pastel_color)
         birth_row.pack(fill="x", pady=3)
         ctk.CTkLabel(
             birth_row,
@@ -122,7 +142,8 @@ class PetCardWithRecords(PetCard):
         ).pack(side="left", padx=5)
 
         # Age row
-        age_row = create_frame(details_frame, "white")
+        age_row = create_frame(details_frame)
+        age_row.configure(fg_color=self._pastel_color)
         age_row.pack(fill="x", pady=3)
         ctk.CTkLabel(
             age_row,
@@ -140,7 +161,8 @@ class PetCardWithRecords(PetCard):
 
         # Owner row (only if owner exists)
         if self.owner:
-            owner_row = create_frame(details_frame, "white")
+            owner_row = create_frame(details_frame)
+            owner_row.configure(fg_color=self._pastel_color)
             owner_row.pack(fill="x", pady=3)
             ctk.CTkLabel(
                 owner_row,
@@ -157,7 +179,8 @@ class PetCardWithRecords(PetCard):
             ).pack(side="left", padx=5)
 
         # --- RIGHT: Image Section ---
-        image_frame = create_frame(main_row, "white")
+        image_frame = create_frame(main_row)
+        image_frame.configure(fg_color=self._pastel_color)
         image_frame.pack(side="right", fill="y", padx=(10, 0))
         thumbnail = self._get_pet_thumbnail()
         label_image = ctk.CTkLabel(
@@ -177,7 +200,8 @@ class PetCardWithRecords(PetCard):
             ).pack(pady=(8, 0))
 
         # --- BELOW: Vaccination and Vet Visit Records Section ---
-        records_frame = create_frame(container, "white")
+        records_frame = create_frame(container)
+        records_frame.configure(fg_color=self._pastel_color)
         records_frame.pack(fill="x", pady=(10, 0))
 
         # Vaccinations

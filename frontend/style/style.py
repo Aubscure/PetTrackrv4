@@ -146,12 +146,12 @@ def configure_table_style():
 
 
 # Add this function to your style.py module
-def apply_uniform_layout_style(parent):
-    # Set the background color of the parent widget to off-white
-    parent.configure(fg_color="#f5f5f5")  # Off-white color
+def apply_uniform_layout_style(parent, bg_color="#F0F8FF"):
+    # Set the background color of the parent widget
+    parent.configure(fg_color=bg_color)
 
     # Create a main frame with padding to add depth
-    main_frame = create_frame(parent, fg_color="#f5f5f5")
+    main_frame = create_frame(parent, fg_color=bg_color)
     main_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
     return main_frame

@@ -23,13 +23,13 @@ def create_view_pets_tab(parent, show_frame):
     create_label(main_frame, "📋 All Pets", font=get_title_font()).pack(pady=(20, 15))
 
     # Create a frame for the canvas and scrollbar
-    canvas_frame = create_frame(main_frame, fg_color="#f5f5f5")
+    canvas_frame = create_frame(main_frame, fg_color="#F0F8FF")
     canvas_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
     # Create the canvas and scrollable frame
-    canvas = ctk.CTkCanvas(canvas_frame, bg="#f5f5f5", highlightthickness=0)
+    canvas = ctk.CTkCanvas(canvas_frame, bg="#F0F8FF", highlightthickness=0)
     scrollbar = ctk.CTkScrollbar(canvas_frame, command=canvas.yview)
-    scrollable_frame = create_frame(canvas, fg_color="#f5f5f5")
+    scrollable_frame = create_frame(canvas, fg_color="#F0F8FF")
     canvas_window = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
     canvas.configure(yscrollcommand=scrollbar.set)
 
