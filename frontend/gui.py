@@ -2,22 +2,26 @@ import customtkinter as ctk
 from frontend.views.dashboard import create_dashboard
 from frontend.views.add_pet_view import create_add_pet_view
 from frontend.views.view_pets_tab import create_view_pets_tab
-from frontend.views.pet_profile_tab import create_pet_profile_tab 
+from frontend.views.pet_profile_tab import create_pet_profile_tab
 from frontend.views.vaccination_visits_tab import VaccinationVisitsTab
 from frontend.views.view_feeding_logs_tab import create_view_feeding_logs_tab
-from frontend.views.grooming_logs_tab import create_grooming_logs_tab  # <-- add this import
+from frontend.views.grooming_logs_tab import create_grooming_logs_tab
 from frontend.style.style import configure_table_style
 from backend.controllers.grooming_controller import GroomingLogsController
 
 def launch_gui():
     """Initializes the main application window and sets up dynamic view navigation."""
-    
+
     ctk.set_appearance_mode("light")  # Optional: can be moved into style.py
     ctk.set_default_color_theme("blue")
 
     root = ctk.CTk()
     root.title("PetTrackr")
-    root.state("zoomed")
+
+    # Maximize the window
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+    root.geometry(f"{screen_width}x{screen_height}+0+0")
 
     # Main container for dynamic views
     main_frame = ctk.CTkFrame(root, fg_color="transparent")
@@ -70,7 +74,7 @@ def launch_gui():
             )
         elif name == "view_feeding_logs":
             create_view_feeding_logs_tab(main_frame, show_frame)
-        elif name == "grooming_logs":  # <-- add this case
+        elif name == "grooming_logs":
             create_grooming_logs_tab(main_frame, show_frame)
 
     configure_table_style()

@@ -1,58 +1,54 @@
 import customtkinter as ctk
 from backend.controllers.pet_controller import PetController
 from frontend.components.pet_card_with_grooming_logs import PetCardWithGroomingLogs
-from frontend.style.style import create_label, create_frame, create_back_button
+from frontend.style.style import create_label, create_frame, get_title_font, apply_uniform_layout_style, create_styled_back_button
 
 def create_grooming_logs_tab(master, show_frame):
     # Clear the master frame
-    for widget in master.winfo_children():
-        widget.destroy()
+    [w.destroy() for w in master.winfo_children()]
 
-    # Configure master grid
-    master.grid_rowconfigure(0, weight=1)  # For main container
-    master.grid_rowconfigure(1, weight=0)  # For bottom frame
-    master.grid_columnconfigure(0, weight=1)
+    # Apply the uniform layout style (reuse main_frame logic from view_pets_tab)
+    main_frame = apply_uniform_layout_style(master)
 
-    # Create main container frame
-    main_container = ctk.CTkFrame(master)
-    main_container.grid(row=0, column=0, sticky="nsew", padx=20, pady=(20, 0))
-    
-    # Configure main container grid
-    main_container.grid_rowconfigure(0, weight=0)  # Title
-    main_container.grid_rowconfigure(1, weight=1)  # Content
-    main_container.grid_columnconfigure(0, weight=1)
+    # Create the title label with the new styling
+    create_label(main_frame, "🛁 Grooming Logs", font=get_title_font()).pack(pady=(20, 15))
 
-    # Title label at the top
-    title_label = create_label(main_container, "🛁 Grooming Logs")
-    title_label.grid(row=0, column=0, pady=(0, 20), sticky="ew")
+    # Create a frame for the canvas and scrollbar
+    canvas_frame = create_frame(main_frame, fg_color="#f5f5f5")
+    canvas_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
-    # Content frame that will hold the cards
-    content_frame = create_frame(main_container)
-    content_frame.grid(row=1, column=0, sticky="nsew")
-    
-    # Configure content frame grid
-    content_frame.grid_rowconfigure(0, weight=1)
-    content_frame.grid_columnconfigure(0, weight=1)
+    # Create the canvas and scrollable frame
+    canvas = ctk.CTkCanvas(canvas_frame, bg="#f5f5f5", highlightthickness=0)
+    scrollbar = ctk.CTkScrollbar(canvas_frame, command=canvas.yview)
+    scrollable_frame = create_frame(canvas, fg_color="#f5f5f5")
+    canvas_window = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+    canvas.configure(yscrollcommand=scrollbar.set)
 
-    # Cards frame for pet cards
-    try:
-        cards_frame = ctk.CTkScrollableFrame(content_frame)
-    except AttributeError:
-        import tkinter as tk
-        canvas = tk.Canvas(content_frame)
-        scrollbar = tk.Scrollbar(content_frame, orient="vertical", command=canvas.yview)
-        cards_frame = create_frame(canvas)
-        cards_frame.bind(
-            "<Configure>",
-            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
-        )
-        canvas.create_window((0, 0), window=cards_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set)
-        canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
-    else:
-        cards_frame.grid(row=0, column=0, sticky="nsew")
-    cards_frame.grid_columnconfigure((0, 1, 2), weight=1)
+    # Configure the grid for the scrollable frame (3 columns for cards)
+    for i in range(3):
+        scrollable_frame.columnconfigure(i, weight=1, uniform="column", minsize=260)
+
+    # Bind events for scrolling
+    def on_canvas_configure(event):
+        canvas.itemconfig(canvas_window, width=event.width)
+        canvas.configure(scrollregion=canvas.bbox("all"))
+
+    def _on_mousewheel(event):
+        canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+
+    def _on_linux_scroll(event):
+        if event.num in (4, 5):
+            canvas.yview_scroll(-1 if event.num == 4 else 1, "units")
+
+    for seq, func in [("<MouseWheel>", _on_mousewheel), ("<Button-4>", _on_linux_scroll), ("<Button-5>", _on_linux_scroll)]:
+        canvas.bind_all(seq, func)
+
+    canvas.bind("<Configure>", on_canvas_configure)
+    scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+
+    # Pack the canvas and scrollbar
+    canvas.pack(side="left", fill="both", expand=True, padx=(0, 4))
+    scrollbar.pack(side="right", fill="y", padx=(0, 8))
 
     pet_controller = PetController()
     pets, owners = pet_controller.get_pets_with_owners()
@@ -78,7 +74,7 @@ def create_grooming_logs_tab(master, show_frame):
             owners_with_logs.append(owner)
 
     if not pets_with_logs:
-        no_pets_label = create_label(cards_frame, "No pets with grooming logs found.")
+        no_pets_label = create_label(scrollable_frame, "No pets with grooming logs found.")
         no_pets_label.grid(row=0, column=0, pady=40)
     else:
         for idx, (pet, owner) in enumerate(zip(pets_with_logs, owners_with_logs)):
@@ -100,23 +96,26 @@ def create_grooming_logs_tab(master, show_frame):
                     grooming_logs=grooming_logs
                 )
             card = PetCardWithGroomingLogs(
-                cards_frame, pet, image_store, owner=owner, on_click=on_card_click
+                scrollable_frame, pet, image_store, owner=owner, on_click=on_card_click
             )
             row, col = divmod(idx, 3)
             card.grid(row=row, column=col, padx=12, pady=12, sticky="nsew")
+            scrollable_frame.rowconfigure(row, weight=1)
 
-    # Bottom frame for the back button (outside main container)
-    bottom_frame = ctk.CTkFrame(master)
-    bottom_frame.grid(row=1, column=0, sticky="se", padx=20, pady=(0, 20))
-    bottom_frame.grid_columnconfigure(0, weight=1)
-
-    # Back button aligned to the right
-    back_button = ctk.CTkButton(
-        bottom_frame,
-        text="Back",
+    # Create a styled back button
+    btn_wrapper = create_frame(main_frame, fg_color="transparent")
+    btn_wrapper.pack(pady=20)
+    create_styled_back_button(
+        btn_wrapper,
+        text="⬅️ Back to Dashboard",
         command=lambda: show_frame("dashboard"),
-        width=120
-    )
-    back_button.grid(row=0, column=0, sticky="e", padx=0, pady=0)
+        width=220
+    ).pack()
+
+    def cleanup():
+        for seq in ("<MouseWheel>", "<Button-4>", "<Button-5>"):
+            canvas.unbind_all(seq)
+
+    master.bind("<Destroy>", lambda e: cleanup())
 
     return master

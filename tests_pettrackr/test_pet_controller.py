@@ -184,9 +184,9 @@ class PetTrackrCLI:
     def _add_grooming_log(self, pet_id):
         print("\n✂️ Add Grooming Log")
         groom_types = {
-            '1': ('basic', 500),
-            '2': ('full', 800),
-            '3': ('premium', 1200)
+            '1': ('basic', 1000),
+            '2': ('custom', 1500),
+            '3': ('premium', 1800)
         }
 
         print("\nGrooming Types:")

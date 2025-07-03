@@ -375,12 +375,10 @@ class AddPetView:
         required = {
             "pet": [self.name_entry.get(), self.bdate_entry.get()],
             "owner": [self.owner_name_entry.get(), self.owner_phone_entry.get()],
-            "image": [self.image_uploader.get_image_path()]
         }
         msgs = {
             "pet": "Pet name and birthdate are required.",
             "owner": "Owner name and contact number are required.",
-            "image": "Please select an image for your pet."
         }
         for check, fields in required.items():
             if not all(fields):
@@ -393,10 +391,12 @@ class AddPetView:
                 messagebox.showerror("Invalid Contact Number", "Contact number must contain only digits (no spaces or letters). Please enter a valid number.")
                 return
             pet_controller = PetController()
+            # Make image optional
+            image_path = self.image_uploader.get_image_path()
             pet_id = pet_controller.add_pet_with_owner(
                 Pet(0, required["pet"][0], self.breed_entry.get(), required["pet"][1]),
                 Owner(0, required["owner"][0], contact_number, self.owner_address_entry.get()),
-                required["image"][0]
+                image_path if image_path else None
             )
             controllers = {
                 "vet_visits": (VetVisitController, VetVisit),

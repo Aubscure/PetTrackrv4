@@ -17,9 +17,9 @@ class GroomingLogsController:
         Inserts a new grooming log into the database. Date is auto-generated. Price is based on grooming type.
         """
         PRICE_MAP = {
-            'basic': 500.0,
-            'full': 800.0,
-            'premium': 1200.0
+            'basic': 1000.0,
+            'custom': 1500.0,
+            'premium': 1800.0
         }
 
         price = PRICE_MAP.get(groom_type, 0.0)
