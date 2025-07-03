@@ -32,25 +32,22 @@ class PetCard(ctk.CTkFrame):
         self._build_card()
 
         self._bind_recursive(self)
-        self._add_hover_effects()
 
-    def _add_hover_effects(self):
+    def _bind_recursive(self, widget):
+        widget.bind("<Button-1>", self._handle_click)
+        # Bind hover events to all widgets
         def on_enter(e):
             self.configure(border_color="#3b8ed0", fg_color="#f7faff")
         def on_leave(e):
             self.configure(border_color="#e0e0e0", fg_color="white")
-        self.bind("<Enter>", on_enter)
-        self.bind("<Leave>", on_leave)
-
-    def _bind_recursive(self, widget):
-        widget.bind("<Button-1>", self._handle_click)
+        widget.bind("<Enter>", on_enter)
+        widget.bind("<Leave>", on_leave)
         for child in widget.winfo_children():
             self._bind_recursive(child)
 
     def _handle_click(self, event):
         if self.on_click:
             self.on_click(self.pet, self.owner)
-
 
     def _build_card(self):
         # Main container with consistent padding
@@ -153,7 +150,6 @@ class PetCard(ctk.CTkFrame):
         ).pack(side="left", padx=5)
 
         # Owner row (only if owner exists)
-# In the owner section (replace the existing owner_row code)
         if self.owner:
             
             owner_row = create_frame(details_frame, "white")
