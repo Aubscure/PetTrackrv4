@@ -184,7 +184,18 @@ class PetCard(ctk.CTkFrame):
             self.image_store.append(thumb)
             return thumb
         except Exception:
-            # Return a blank/gray image and set a flag for missing image
+            # Try to use the fallback image
+            try:
+                fallback_path = os.path.join("frontend", "assets", "no-pet-image.png")
+                if os.path.exists(fallback_path):
+                    image = Image.open(fallback_path).resize((140, 140))
+                    thumb = ctk.CTkImage(light_image=image, dark_image=image, size=(140, 140))
+                    self.image_store.append(thumb)
+                    self._missing_image = True
+                    return thumb
+            except Exception:
+                pass
+            # Fallback to blank/gray image
             image = Image.new("RGB", (140, 140), color="lightgray")
             thumb = ctk.CTkImage(light_image=image, dark_image=image, size=(140, 140))
             self.image_store.append(thumb)

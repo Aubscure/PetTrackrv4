@@ -17,7 +17,7 @@ def launch_gui():
 
     root = ctk.CTk()
     root.title("PetTrackr")
-    root.attributes("-fullscreen", True)
+    root.state("zoomed")
 
     # Main container for dynamic views
     main_frame = ctk.CTkFrame(root, fg_color="transparent")

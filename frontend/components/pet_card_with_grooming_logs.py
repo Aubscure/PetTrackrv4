@@ -32,6 +32,19 @@ class PetCardWithGroomingLogs(PetCard):
             self.image_store.append(thumb)
             return thumb
         except Exception:
+            try:
+                import os
+                from PIL import Image
+                from customtkinter import CTkImage
+                fallback_path = os.path.join("frontend", "assets", "no-pet-image.png")
+                if os.path.exists(fallback_path):
+                    image = Image.open(fallback_path).resize((140, 140))
+                    thumb = CTkImage(light_image=image, dark_image=image, size=(140, 140))
+                    self.image_store.append(thumb)
+                    self._missing_image = True
+                    return thumb
+            except Exception:
+                pass
             from PIL import Image
             from customtkinter import CTkImage
             image = Image.new("RGB", (140, 140), color="lightgray")

@@ -142,3 +142,30 @@ def configure_table_style():
     style = ttk.Style()
     style.configure("Treeview", rowheight=32, font=("Segoe UI", 14))
     style.configure("Treeview.Heading", font=("Segoe UI", 16, "bold"))
+
+
+
+# Add this function to your style.py module
+def apply_uniform_layout_style(parent):
+    # Set the background color of the parent widget to off-white
+    parent.configure(fg_color="#f5f5f5")  # Off-white color
+
+    # Create a main frame with padding to add depth
+    main_frame = create_frame(parent, fg_color="#f5f5f5")
+    main_frame.pack(fill="both", expand=True, padx=20, pady=20)
+
+    return main_frame
+
+def create_styled_back_button(parent, text, command, width=220):
+    """Create a styled back button with light brown color"""
+    return ctk.CTkButton(
+        parent,
+        text=text,
+        command=command,
+        width=width,
+        corner_radius=8,
+        font=get_button_font(),
+        fg_color="#b8a38a",  # Light brown color
+        hover_color="#c9b69a",  # Slightly lighter brown for hover effect
+        text_color="#222222"  # Dark text color for contrast
+    )

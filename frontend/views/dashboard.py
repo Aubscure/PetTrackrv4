@@ -13,62 +13,70 @@ from frontend.components.dashboard_buttons import (
     daycare_button,
 )
 
+def create_vaccination_visits_button(parent, show_frame):
+    # Combines vaccination and visits (assuming visits = vet visits)
+    return vaccinations_button(parent, show_frame)  # You can update text/icon if needed
+
+
 def create_dashboard(parent, show_frame):
     for widget in parent.winfo_children():
         widget.destroy()
 
-    # Title
+    # Title (centered at the top)
     title = create_label(parent, "🐾 PetTrackr Dashboard")
-    title.pack(pady=(20, 10))
+    title.pack(side="top", pady=(40, 20), anchor="n", fill="x")
+    title.configure(justify="center")
 
-    # Main container for bento grid (centered and compact)
+    # Main container for bento grid (centered, 3/4 of the screen)
     main_frame = create_frame(parent)
-    main_frame.pack(expand=True)
-    main_frame.configure(width=600, height=400)
+    main_frame.place(relx=0.5, rely=0.52, anchor="center", relwidth=0.75, relheight=0.75)
     main_frame.pack_propagate(False)
 
-    # Bento grid container (centered)
+    # Bento grid container (fills main_frame)
     grid_frame = create_frame(main_frame)
-    grid_frame.place(relx=0.5, rely=0.5, anchor="center")
+    grid_frame.pack(expand=True, fill="both", padx=20, pady=10)
+    grid_frame.grid_propagate(False)
+    grid_frame.configure(width=560, height=420)
 
-    # --- Row 1: Large Add Pet, two stacked small buttons ---
-    row1 = create_frame(grid_frame)
-    row1.pack()
+    # Configure grid weights for stretching
+    for i in range(4):
+        grid_frame.rowconfigure(i, weight=1, uniform="row")
+    for j in range(2):
+        grid_frame.columnconfigure(j, weight=1, uniform="col")
 
-    add_pet_btn = add_pet_button(row1, show_frame)
-    add_pet_btn.configure(width=320, height=200)
-    add_pet_btn.pack(side="left", padx=(0, 8))
+    # 1. Add Pet (most important, large, spans two columns)
+    add_pet_btn = add_pet_button(grid_frame, show_frame)
+    add_pet_btn.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=8, pady=8)
+    add_pet_btn.configure(width=1, height=1)  # Let grid stretch
 
-    right_col = create_frame(row1)
-    right_col.pack(side="left")
+    # 2. View All Pets
+    view_pets_btn = view_pets_button(grid_frame, show_frame)
+    view_pets_btn.grid(row=1, column=0, sticky="nsew", padx=8, pady=8)
+    view_pets_btn.configure(width=1, height=1)
 
-    view_pets_btn = view_pets_button(right_col, show_frame)
-    view_pets_btn.configure(width=140, height=95)
-    view_pets_btn.pack(pady=(0, 8))
+    # 3. Vaccination & Visits (combined)
+    vacc_visits_btn = create_vaccination_visits_button(grid_frame, show_frame)
+    vacc_visits_btn.grid(row=1, column=1, sticky="nsew", padx=8, pady=8)
+    vacc_visits_btn.configure(width=1, height=1)
 
-    vaccinations_btn = vaccinations_button(right_col, show_frame)
-    vaccinations_btn.configure(width=140, height=95)
-    vaccinations_btn.pack(pady=(8, 0))
+    # 4. Daycare
+    daycare_btn = daycare_button(grid_frame, show_frame)
+    daycare_btn.grid(row=2, column=0, sticky="nsew", padx=8, pady=8)
+    daycare_btn.configure(width=1, height=1)
 
-    # --- Row 2: Groomings, Daycare, Exit (all medium) ---
-    row2 = create_frame(grid_frame)
-    row2.pack(pady=(8, 0))
+    # 5. Grooming
+    grooming_btn = grooming_button(grid_frame, show_frame)
+    grooming_btn.grid(row=2, column=1, sticky="nsew", padx=8, pady=8)
+    grooming_btn.configure(width=1, height=1)
 
-    grooming_btn = grooming_button(row2, show_frame)
-    grooming_btn.configure(width=120, height=80)
-    grooming_btn.pack(side="left", padx=(0, 8))
-
-    daycare_btn = daycare_button(row2, show_frame)
-    daycare_btn.configure(width=120, height=80)
-    daycare_btn.pack(side="left", padx=(0, 8))
-
+    # 6. Exit (spans two columns, smaller)
     exit_btn = create_exit_button(
-        row2,
+        grid_frame,
         text="Exit",
         command=parent.quit,
-        width=120,
-        height=80
+        width=1,
+        height=1
     )
-    exit_btn.pack(side="left")
+    exit_btn.grid(row=3, column=0, columnspan=2, sticky="nsew", padx=8, pady=(8, 0))
 
     return parent
