@@ -81,7 +81,7 @@ class PetCard(ctk.CTkFrame):
             text="",
             compound="top"
         )
-        label_image.pack()
+        label_image.pack(pady=(10, 10))
         # Show message if image is missing
         if hasattr(self, '_missing_image') and self._missing_image:
             ctk.CTkLabel(

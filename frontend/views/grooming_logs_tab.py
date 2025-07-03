@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from backend.controllers.pet_controller import PetController
 from frontend.components.pet_card_with_grooming_logs import PetCardWithGroomingLogs
+from frontend.components.copyright import get_copyright_label
 from frontend.style.style import create_label, create_frame, get_title_font, apply_uniform_layout_style, create_styled_back_button
 
 def create_grooming_logs_tab(master, show_frame):
@@ -117,5 +118,8 @@ def create_grooming_logs_tab(master, show_frame):
             canvas.unbind_all(seq)
 
     master.bind("<Destroy>", lambda e: cleanup())
+
+    copyright_label = get_copyright_label(master)
+    copyright_label.pack(side="bottom", pady=(2, 2))
 
     return master

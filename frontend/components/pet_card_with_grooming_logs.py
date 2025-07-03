@@ -1,152 +1,124 @@
-from frontend.components.pet_card import PetCard
+import os
+import random
+from PIL import Image
 import customtkinter as ctk
+from backend.controllers.grooming_controller import GroomingLogsController
 from frontend.style.style import (
-    create_label, 
-    create_frame, 
-    get_subtitle_font, 
+    create_label,
+    create_frame,
+    get_subtitle_font,
     get_card_detail_font,
     get_card_title_font,
-    get_card_icon_font
+    get_card_icon_font,
 )
-# FIX: Correct import for GroomingLogsController
-from backend.controllers.grooming_controller import GroomingLogsController
 
-class PetCardWithGroomingLogs(PetCard):
+class PetCardWithGroomingLogs(ctk.CTkFrame):
     def __init__(self, master, pet, image_store, owner=None, on_click=None, *args, **kwargs):
-        # FIX: Use GroomingLogsController and correct method to get logs
+        self.pet = pet
+        self.owner = owner
+        self.image_store = image_store
+        self.on_click = on_click
         self.grooming_logs = GroomingLogsController().get_grooming_logs_for_pet(pet.id)
-        super().__init__(master, pet, image_store, owner, on_click, *args, **kwargs)
+
+        self._pastel_color = self.generate_pastel_color()
+        super().__init__(
+            master,
+            fg_color=self._pastel_color,
+            corner_radius=16,
+            border_width=2,
+            border_color="#e0e0e0",
+            *args,
+            **kwargs
+        )
+        self.configure(width=260)
+        self.columnconfigure(0, weight=1)
+        self._original_fg_color = self._pastel_color
+        self._build_card()
+        self._bind_recursive(self)
+
+    def _bind_recursive(self, widget):
+        widget.bind("<Button-1>", self._handle_click)
+        def on_enter(e):
+            self.configure(border_color="#3b8ed0", fg_color="#d1e8ff")
+        def on_leave(e):
+            self.configure(border_color="#e0e0e0", fg_color=self._original_fg_color)
+        widget.bind("<Enter>", on_enter)
+        widget.bind("<Leave>", on_leave)
+        for child in widget.winfo_children():
+            self._bind_recursive(child)
+
+    def _handle_click(self, event):
+        if self.on_click:
+            self.on_click(self.pet)
+
+    @staticmethod
+    def generate_pastel_color():
+        base = random.randint(200, 230)
+        r = min(255, base + random.randint(0, 55))
+        g = min(255, base + random.randint(0, 55))
+        b = min(255, base + random.randint(0, 55))
+        return f"#{r:02x}{g:02x}{b:02x}"
 
     def _get_pet_thumbnail(self):
         try:
             if not self.pet.image_path:
                 raise FileNotFoundError
-            import os
-            from PIL import Image
             img_path = os.path.join("backend", "data", self.pet.image_path)
             if not os.path.exists(img_path):
                 raise FileNotFoundError
-            from customtkinter import CTkImage
             image = Image.open(img_path).resize((140, 140))
-            thumb = CTkImage(light_image=image, dark_image=image, size=(140, 140))
+            thumb = ctk.CTkImage(light_image=image, dark_image=image, size=(140, 140))
             self.image_store.append(thumb)
             return thumb
         except Exception:
             try:
-                import os
-                from PIL import Image
-                from customtkinter import CTkImage
                 fallback_path = os.path.join("frontend", "assets", "no-pet-image.png")
                 if os.path.exists(fallback_path):
                     image = Image.open(fallback_path).resize((140, 140))
-                    thumb = CTkImage(light_image=image, dark_image=image, size=(140, 140))
+                    thumb = ctk.CTkImage(light_image=image, dark_image=image, size=(140, 140))
                     self.image_store.append(thumb)
                     self._missing_image = True
                     return thumb
             except Exception:
                 pass
-            from PIL import Image
-            from customtkinter import CTkImage
             image = Image.new("RGB", (140, 140), color="lightgray")
-            thumb = CTkImage(light_image=image, dark_image=image, size=(140, 140))
+            thumb = ctk.CTkImage(light_image=image, dark_image=image, size=(140, 140))
             self.image_store.append(thumb)
             self._missing_image = True
             return thumb
 
     def _build_card(self):
-        # Main container
-        container = create_frame(self, "white")
+        container = create_frame(self, self._original_fg_color)
         container.pack(padx=12, pady=12, fill="both", expand=True)
 
-        # Horizontal layout: left (details), right (image)
-        main_row = create_frame(container, "white")
+        main_row = create_frame(container, self._original_fg_color)
         main_row.pack(fill="both", expand=True)
 
-        # --- LEFT: Info Section ---
-        info_frame = create_frame(main_row, "white")
+        info_frame = create_frame(main_row, self._original_fg_color)
         info_frame.pack(side="left", fill="both", expand=True, padx=(0, 10))
 
-        # Name with icon
-        name_frame = create_frame(info_frame, "white")
+        name_frame = create_frame(info_frame, self._original_fg_color)
         name_frame.pack(pady=(0, 8), anchor="w")
-        ctk.CTkLabel(
-            name_frame,
-            text="🐾",
-            font=get_card_icon_font(),
-        ).pack(side="left", padx=(0, 5))
-        label_name = create_label(
-            name_frame,
-            self.pet.name,
-            font=get_card_title_font()
-        )
-        label_name.pack(side="left")
+        ctk.CTkLabel(name_frame, text="🐾", font=get_card_icon_font()).pack(side="left", padx=(0, 5))
+        create_label(name_frame, self.pet.name, font=get_card_title_font()).pack(side="left")
 
-        # Details with icon-text pairs
-        details_frame = create_frame(info_frame, "white")
+        details_frame = create_frame(info_frame, self._original_fg_color)
         details_frame.pack(fill="x", padx=8)
 
-        # Breed row
-        breed_row = create_frame(details_frame, "white")
-        breed_row.pack(fill="x", pady=3)
-        ctk.CTkLabel(
-            breed_row,
-            text="🐶",
-            font=get_card_icon_font(),
-            width=24,
-            anchor="w"
-        ).pack(side="left")
-        create_label(
-            breed_row,
-            self.pet.breed or "Unknown",
-            font=get_card_detail_font(),
-            anchor="w"
-        ).pack(side="left", padx=5)
+        for icon, value in [
+            ("🐶", self.pet.breed or "Unknown"),
+            ("📅", self.pet.birthdate),
+            ("🕒", self.pet.age())
+        ]:
+            row = create_frame(details_frame, self._original_fg_color)
+            row.pack(fill="x", pady=3)
+            ctk.CTkLabel(row, text=icon, font=get_card_icon_font(), width=24, anchor="w").pack(side="left")
+            create_label(row, value, font=get_card_detail_font(), anchor="w").pack(side="left", padx=5)
 
-        # Birthdate row
-        birth_row = create_frame(details_frame, "white")
-        birth_row.pack(fill="x", pady=3)
-        ctk.CTkLabel(
-            birth_row,
-            text="📅",
-            font=get_card_icon_font(),
-            width=24,
-            anchor="w"
-        ).pack(side="left")
-        create_label(
-            birth_row,
-            self.pet.birthdate,
-            font=get_card_detail_font(),
-            anchor="w"
-        ).pack(side="left", padx=5)
-
-        # Age row
-        age_row = create_frame(details_frame, "white")
-        age_row.pack(fill="x", pady=3)
-        ctk.CTkLabel(
-            age_row,
-            text="🕒",
-            font=get_card_icon_font(),
-            width=24,
-            anchor="w"
-        ).pack(side="left")
-        create_label(
-            age_row,
-            self.pet.age(),
-            font=get_card_detail_font(),
-            anchor="w"
-        ).pack(side="left", padx=5)
-
-        # Owner row (only if owner exists)
         if self.owner:
-            owner_row = create_frame(details_frame, "white")
+            owner_row = create_frame(details_frame, self._original_fg_color)
             owner_row.pack(fill="x", pady=3)
-            ctk.CTkLabel(
-                owner_row,
-                text="👤",
-                font=get_card_icon_font(),
-                width=24,
-                anchor="w"
-            ).pack(side="left")
+            ctk.CTkLabel(owner_row, text="👤", font=get_card_icon_font(), width=24, anchor="w").pack(side="left")
             create_label(
                 owner_row,
                 f"{self.owner.name} ({self.owner.contact_number})",
@@ -154,18 +126,11 @@ class PetCardWithGroomingLogs(PetCard):
                 anchor="w"
             ).pack(side="left", padx=5)
 
-        # --- RIGHT: Image Section ---
-        image_frame = create_frame(main_row, "white")
+        image_frame = create_frame(main_row, self._original_fg_color)
         image_frame.pack(side="right", fill="y", padx=(10, 0))
         thumbnail = self._get_pet_thumbnail()
-        label_image = ctk.CTkLabel(
-            image_frame,
-            image=thumbnail,
-            text="",
-            compound="top"
-        )
-        label_image.pack(anchor="center", pady=5)
-        # Show message if image is missing
+        ctk.CTkLabel(image_frame, image=thumbnail, text="", compound="top").pack(anchor="center", pady=5)
+
         if hasattr(self, '_missing_image') and self._missing_image:
             ctk.CTkLabel(
                 image_frame,
@@ -174,20 +139,21 @@ class PetCardWithGroomingLogs(PetCard):
                 text_color="#888888"
             ).pack(pady=(8, 0))
 
-        # --- BELOW: Grooming Logs Section ---
-        logs_frame = create_frame(container, "white")
+        logs_frame = create_frame(container, self._original_fg_color)
         logs_frame.pack(fill="x", pady=(10, 0))
 
-        logs_label = create_label(logs_frame, "Grooming Logs:", font=get_subtitle_font())
-        logs_label.pack(anchor="w")
+        create_label(logs_frame, "Grooming Logs:", font=get_subtitle_font()).pack(anchor="w")
         if self.grooming_logs:
             for log in self.grooming_logs:
+                log_row = create_frame(logs_frame, self._original_fg_color)
+                log_row.pack(fill="x", padx=5, pady=2)
                 create_label(
-                    logs_frame,
+                    log_row,
                     f"• {log}",
                     font=get_card_detail_font(),
-                    anchor="w"
-                ).pack(anchor="w", padx=10)
+                    anchor="w",
+                    wraplength=400
+                ).pack(fill="x", anchor="w")
         else:
             create_label(
                 logs_frame,

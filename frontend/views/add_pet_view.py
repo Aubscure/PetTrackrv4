@@ -12,6 +12,7 @@ from backend.controllers.vet_visit_controller import VetVisitController
 from backend.controllers.vaccination_controller import VaccinationController
 from backend.controllers.feeding_log_controller import FeedingLogController
 from frontend.components.floating_placeholder_entry import FloatingPlaceholderEntry
+from frontend.components.copyright import get_copyright_label
 from frontend.components.image_uploader import ImageUploader
 from frontend.style.style import (
     create_button, create_label, create_frame, 
@@ -436,4 +437,9 @@ class AddPetView:
             messagebox.showerror("Error", str(e))
 
 def create_add_pet_view(parent, show_frame):
-    return AddPetView(parent, show_frame).parent
+    AddPetView(parent, show_frame).parent
+
+    copyright_label = get_copyright_label(parent)
+    copyright_label.pack(side="bottom", pady=(2, 2))
+
+    return parent

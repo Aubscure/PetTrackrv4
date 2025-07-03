@@ -6,6 +6,7 @@ from backend.controllers.vaccination_controller import VaccinationController
 from backend.controllers.vet_visit_controller import VetVisitController
 from backend.database_handlers.vaccinations_db_handler import VaccinationDB
 from backend.database_handlers.vet_visits_db_handler import VetVisitDB
+from frontend.components.copyright import get_copyright_label
 
 class VaccinationVisitsTab:
     @staticmethod
@@ -118,5 +119,8 @@ class VaccinationVisitsTab:
                 canvas.unbind_all(seq)
 
         parent.bind("<Destroy>", lambda e: cleanup())
+    
+        copyright_label = get_copyright_label(parent)
+        copyright_label.pack(side="bottom", pady=(2, 2))
 
         return parent

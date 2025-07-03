@@ -8,6 +8,7 @@ from frontend.views.view_feeding_logs_tab import create_view_feeding_logs_tab
 from frontend.views.grooming_logs_tab import create_grooming_logs_tab
 from frontend.style.style import configure_table_style
 from backend.controllers.grooming_controller import GroomingLogsController
+from frontend.components.copyright import get_copyright_label
 
 def launch_gui():
     """Initializes the main application window and sets up dynamic view navigation."""
@@ -76,6 +77,9 @@ def launch_gui():
             create_view_feeding_logs_tab(main_frame, show_frame)
         elif name == "grooming_logs":
             create_grooming_logs_tab(main_frame, show_frame)
+    
+    copyright_label = get_copyright_label(main_frame)
+    copyright_label.pack(side="bottom", pady=(2, 2))
 
     configure_table_style()
 

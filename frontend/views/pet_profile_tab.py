@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from PIL import Image
 import os
+from frontend.components.copyright import get_copyright_label
 from frontend.style.style import (
     create_label1, create_frame, create_button,
     get_title_font, get_subtitle_font, get_card_detail_font
@@ -30,17 +31,38 @@ class PetProfileTab:
         self.parent.pack_propagate(False)
 
     def _setup_main_layout(self):
-        ctk.CTkFrame(self.parent, height=36, fg_color="transparent").pack(fill="x", side="top")
+        # Outer wrapper to hold everything vertically
+        outer_frame = ctk.CTkFrame(self.parent, fg_color="white")
+        outer_frame.pack(fill="both", expand=True)
+        outer_frame.pack_propagate(False)
 
-        main = ctk.CTkFrame(self.parent, fg_color="transparent")
-        main.pack(fill="both", expand=True, padx=80, pady=36)
+        # Optional top spacer
+        ctk.CTkFrame(outer_frame, height=20, fg_color="white").pack(fill="x")
+
+        # Main content
+        main = ctk.CTkFrame(outer_frame, fg_color="transparent")
+        main.pack(fill="both", expand=True, padx=80, pady=(0, 0))
         main.grid_columnconfigure(0, weight=1, minsize=340)
         main.grid_columnconfigure(1, weight=1)
         main.grid_rowconfigure(0, weight=1)
 
         self._image_panel(main)
         self._content_panel(main)
-        self._back_button()
+
+        # Back button
+        btn = create_button(
+            outer_frame,
+            text="← Back",
+            command=self.go_back if self.go_back else lambda: self.show_frame("view_pets"),
+            color="#8c8c8c",
+            width=120
+        )
+        btn.pack(pady=(8, 4))
+
+        # Copyright at very bottom
+        copyright_label = get_copyright_label(outer_frame)
+        copyright_label.pack(side="bottom", pady=(4, 6))
+
 
     def _image_panel(self, parent):
         panel = ctk.CTkFrame(parent, fg_color="#f0f8ff", corner_radius=16, border_width=2, border_color="#4a90d9")
@@ -197,9 +219,11 @@ class PetProfileTab:
         )
         btn.pack(side="bottom", pady=16)
 
+
 def create_pet_profile_tab(parent, pet, owner, vet_visits, vaccinations, feeding_logs, grooming_logs, show_frame, go_back=None):
     """
     Factory function to create and display a PetProfileTab.
     """
     PetProfileTab(parent, pet, owner, vet_visits, vaccinations, feeding_logs, grooming_logs, show_frame, go_back)
     return parent
+

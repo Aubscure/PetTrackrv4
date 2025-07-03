@@ -5,6 +5,7 @@ from backend.controllers.vet_visit_controller import VetVisitController
 from backend.controllers.feeding_log_controller import FeedingLogController
 from backend.controllers.grooming_controller import GroomingLogsController
 from frontend.components.pet_card_with_feeding_logs import PetCardWithFeedingLogs
+from frontend.components.copyright import get_copyright_label
 from frontend.style.style import create_label, create_frame, get_title_font, apply_uniform_layout_style, create_styled_back_button
 
 def create_view_feeding_logs_tab(master, show_frame):
@@ -110,5 +111,8 @@ def create_view_feeding_logs_tab(master, show_frame):
             canvas.unbind_all(seq)
 
     master.bind("<Destroy>", lambda e: cleanup())
+
+    copyright_label = get_copyright_label(master)
+    copyright_label.pack(side="bottom", pady=(2, 2))
 
     return master

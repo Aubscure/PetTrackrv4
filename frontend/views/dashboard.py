@@ -1,4 +1,5 @@
 import customtkinter as ctk
+from frontend.components.copyright import get_copyright_label
 
 from frontend.style.style import (
     create_label,
@@ -78,5 +79,8 @@ def create_dashboard(parent, show_frame):
         height=1
     )
     exit_btn.grid(row=3, column=0, columnspan=2, sticky="nsew", padx=8, pady=(8, 0))
+
+    copyright_label = get_copyright_label(main_frame)
+    copyright_label.pack(side="bottom", pady=(2, 2))
 
     return parent

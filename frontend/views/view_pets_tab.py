@@ -7,6 +7,7 @@ from frontend.style.style import create_label, create_button, create_frame, get_
 from backend.controllers.vet_visit_controller import VetVisitController
 from backend.controllers.vaccination_controller import VaccinationController
 from backend.controllers.feeding_log_controller import FeedingLogController
+from frontend.components.copyright import get_copyright_label
 
 def get_vet_visits(pet_id): return VetVisitController().get_by_pet_id(pet_id)
 def get_vaccinations(pet_id): return VaccinationController().get_by_pet_id(pet_id)
@@ -95,5 +96,8 @@ def create_view_pets_tab(parent, show_frame):
             canvas.unbind_all(seq)
 
     parent.bind("<Destroy>", lambda e: cleanup())
+
+    copyright_label = get_copyright_label(main_frame)
+    copyright_label.pack(side="bottom", pady=(2, 2))
 
     return parent
