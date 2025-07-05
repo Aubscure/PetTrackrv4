@@ -23,13 +23,17 @@ def create_dashboard(parent, show_frame):
     for widget in parent.winfo_children():
         widget.destroy()
 
+    # Create a scrollable frame
+    scrollable_frame = ctk.CTkScrollableFrame(parent, fg_color="transparent")
+    scrollable_frame.pack(expand=True, fill="both", padx=10, pady=10)
+
     # Welcome introduction section
-    welcome_section = create_welcome_intro(parent)
-    welcome_section.pack(side="top", pady=(0, 30), fill="x", padx=50)
+    welcome_section = create_welcome_intro(scrollable_frame)
+    welcome_section.pack(side="top", pady=(0, 30), fill="x", padx=40)
 
     # Main content frame with 2 columns
-    main_frame = ctk.CTkFrame(parent, fg_color="transparent")
-    main_frame.pack(expand=True, fill="both", padx=30, pady=(0, 20))
+    main_frame = ctk.CTkFrame(scrollable_frame, fg_color="transparent")
+    main_frame.pack(expand=True, fill="both", padx=20, pady=(0, 20))
     
     # Configure grid weights for 2 columns
     main_frame.grid_columnconfigure(0, weight=1)  # Left column (slideshow)
@@ -77,7 +81,7 @@ def create_dashboard(parent, show_frame):
     )
     exit_btn.pack(fill="x", padx=8, pady=(8, 0))
 
-    # Copyright at the bottom
+    # Copyright at the bottom (outside scrollable frame)
     copyright_label = get_copyright_label(parent)
     copyright_label.pack(side="bottom", pady=(2, 2))
 
