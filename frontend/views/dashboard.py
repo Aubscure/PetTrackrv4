@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from frontend.components.copyright import get_copyright_label
 from frontend.components.slideshow import Slideshow
+from frontend.components.welcome_intro import create_welcome_intro
 from frontend.style.style import (
     create_label,
     create_exit_button,
@@ -22,14 +23,13 @@ def create_dashboard(parent, show_frame):
     for widget in parent.winfo_children():
         widget.destroy()
 
-    # Title (centered at the top)
-    title = create_label(parent, "🐾 PetTrackr Dashboard")
-    title.pack(side="top", pady=(40, 20), anchor="n", fill="x")
-    title.configure(justify="center")
+    # Welcome introduction section
+    welcome_section = create_welcome_intro(parent)
+    welcome_section.pack(side="top", pady=(0, 30), fill="x", padx=50)
 
     # Main content frame with 2 columns
     main_frame = ctk.CTkFrame(parent, fg_color="transparent")
-    main_frame.pack(expand=True, fill="both", padx=20, pady=20)
+    main_frame.pack(expand=True, fill="both", padx=30, pady=(0, 20))
     
     # Configure grid weights for 2 columns
     main_frame.grid_columnconfigure(0, weight=1)  # Left column (slideshow)

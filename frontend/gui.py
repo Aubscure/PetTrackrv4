@@ -23,7 +23,7 @@ def launch_gui():
     root.geometry(f"{screen_width}x{screen_height}+0+0")
 
     # Set a clean background color
-    root.configure(fg_color="#f0f0f0")  # Light gray background
+    root.configure(fg_color="#F0F8FF")  # Light gray background
 
     navigation_stack = []
 
