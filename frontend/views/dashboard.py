@@ -1,9 +1,8 @@
 import customtkinter as ctk
 from frontend.components.copyright import get_copyright_label
-
+from frontend.components.slideshow import Slideshow
 from frontend.style.style import (
     create_label,
-    create_frame,
     create_exit_button,
 )
 from frontend.components.dashboard_buttons import (
@@ -28,59 +27,58 @@ def create_dashboard(parent, show_frame):
     title.pack(side="top", pady=(40, 20), anchor="n", fill="x")
     title.configure(justify="center")
 
-    # Main container for bento grid (centered, 3/4 of the screen)
-    main_frame = create_frame(parent)
-    main_frame.place(relx=0.5, rely=0.52, anchor="center", relwidth=0.75, relheight=0.75)
-    main_frame.pack_propagate(False)
+    # Main content frame with 2 columns
+    main_frame = ctk.CTkFrame(parent, fg_color="transparent")
+    main_frame.pack(expand=True, fill="both", padx=20, pady=20)
+    
+    # Configure grid weights for 2 columns
+    main_frame.grid_columnconfigure(0, weight=1)  # Left column (slideshow)
+    main_frame.grid_columnconfigure(1, weight=1)  # Right column (buttons)
+    main_frame.grid_rowconfigure(0, weight=1)
 
-    # Bento grid container (fills main_frame)
-    grid_frame = create_frame(main_frame)
-    grid_frame.pack(expand=True, fill="both", padx=20, pady=10)
-    grid_frame.grid_propagate(False)
-    grid_frame.configure(width=560, height=420)
+    # Left column: Slideshow
+    slideshow_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+    slideshow_frame.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
+    
+    slideshow = Slideshow(slideshow_frame)
+    slideshow.pack(expand=True, fill="both")
 
-    # Configure grid weights for stretching
-    for i in range(4):
-        grid_frame.rowconfigure(i, weight=1, uniform="row")
-    for j in range(2):
-        grid_frame.columnconfigure(j, weight=1, uniform="col")
+    # Right column: Buttons
+    button_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+    button_frame.grid(row=0, column=1, sticky="nsew", padx=(10, 0))
 
-    # 1. Add Pet (most important, large, spans two columns)
-    add_pet_btn = add_pet_button(grid_frame, show_frame)
-    add_pet_btn.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=8, pady=8)
-    add_pet_btn.configure(width=1, height=1)  # Let grid stretch
+    # 1. Add Pet (large)
+    add_pet_btn = add_pet_button(button_frame, show_frame)
+    add_pet_btn.pack(fill="x", padx=8, pady=8)
 
-    # 2. View All Pets
-    view_pets_btn = view_pets_button(grid_frame, show_frame)
-    view_pets_btn.grid(row=1, column=0, sticky="nsew", padx=8, pady=8)
-    view_pets_btn.configure(width=1, height=1)
+    # 2. View All Pets & Vaccination/Visits (side by side)
+    row1 = ctk.CTkFrame(button_frame, fg_color="transparent")
+    row1.pack(fill="x", padx=8, pady=8)
+    view_pets_btn = view_pets_button(row1, show_frame)
+    view_pets_btn.pack(side="left", expand=True, fill="x", padx=(0,4))
+    vacc_visits_btn = create_vaccination_visits_button(row1, show_frame)
+    vacc_visits_btn.pack(side="left", expand=True, fill="x", padx=(4,0))
 
-    # 3. Vaccination & Visits (combined)
-    vacc_visits_btn = create_vaccination_visits_button(grid_frame, show_frame)
-    vacc_visits_btn.grid(row=1, column=1, sticky="nsew", padx=8, pady=8)
-    vacc_visits_btn.configure(width=1, height=1)
+    # 3. Daycare & Grooming (side by side)
+    row2 = ctk.CTkFrame(button_frame, fg_color="transparent")
+    row2.pack(fill="x", padx=8, pady=8)
+    daycare_btn = daycare_button(row2, show_frame)
+    daycare_btn.pack(side="left", expand=True, fill="x", padx=(0,4))
+    grooming_btn = grooming_button(row2, show_frame)
+    grooming_btn.pack(side="left", expand=True, fill="x", padx=(4,0))
 
-    # 4. Daycare
-    daycare_btn = daycare_button(grid_frame, show_frame)
-    daycare_btn.grid(row=2, column=0, sticky="nsew", padx=8, pady=8)
-    daycare_btn.configure(width=1, height=1)
-
-    # 5. Grooming
-    grooming_btn = grooming_button(grid_frame, show_frame)
-    grooming_btn.grid(row=2, column=1, sticky="nsew", padx=8, pady=8)
-    grooming_btn.configure(width=1, height=1)
-
-    # 6. Exit (spans two columns, smaller)
+    # 4. Exit (full width)
     exit_btn = create_exit_button(
-        grid_frame,
+        button_frame,
         text="Exit",
         command=parent.quit,
         width=1,
         height=1
     )
-    exit_btn.grid(row=3, column=0, columnspan=2, sticky="nsew", padx=8, pady=(8, 0))
+    exit_btn.pack(fill="x", padx=8, pady=(8, 0))
 
-    copyright_label = get_copyright_label(main_frame)
+    # Copyright at the bottom
+    copyright_label = get_copyright_label(parent)
     copyright_label.pack(side="bottom", pady=(2, 2))
 
     return parent

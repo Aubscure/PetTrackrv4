@@ -73,6 +73,15 @@ class PetProfileTab:
         img = self._get_image()
         image_label = ctk.CTkLabel(panel, image=ctk.CTkImage(light_image=img, dark_image=img, size=(300, 300)), text="")
         image_label.pack(pady=(20, 10))
+        
+        # Show message if image is missing
+        if hasattr(self, '_missing_image') and self._missing_image:
+            ctk.CTkLabel(
+                panel,
+                text="Oh no! I can't see your pet's cuteness",
+                font=get_card_detail_font(),
+                text_color="#888888"
+            ).pack(pady=(8, 0))
 
         create_label1(panel, f"🐾 {self.pet.name}'s Profile", font=get_title_font(), justify="center").pack(pady=(0, 8))
 
@@ -91,10 +100,28 @@ class PetProfileTab:
 
     def _get_image(self):
         try:
-            img_path = os.path.join("backend", "data", getattr(self.pet, 'image_path', "")) if hasattr(self.pet, 'image_path') else None
-            return Image.open(img_path).resize((300, 300)) if img_path and os.path.exists(img_path) else Image.new("RGB", (300, 300), "#4a90d9")
+            if not self.pet.image_path:
+                raise FileNotFoundError
+            img_path = os.path.join("backend", "data", self.pet.image_path)
+            if not os.path.exists(img_path):
+                raise FileNotFoundError
+            image = Image.open(img_path).resize((300, 300))
+            self._missing_image = False
+            return image
         except Exception:
-            return Image.new("RGB", (300, 300), "#4a90d9")
+            # Try to use the fallback image
+            try:
+                fallback_path = os.path.join("frontend", "assets", "no-pet-image.png")
+                if os.path.exists(fallback_path):
+                    image = Image.open(fallback_path).resize((300, 300))
+                    self._missing_image = True
+                    return image
+            except Exception:
+                pass
+            # Fallback to blank/gray image
+            image = Image.new("RGB", (300, 300), color="lightgray")
+            self._missing_image = True
+            return image
 
     def _content_panel(self, parent):
         scrollable_frame = ctk.CTkScrollableFrame(parent, fg_color="#f5f7fa", corner_radius=18, border_width=2, border_color="#d0d4db")

@@ -26,7 +26,7 @@ class VaccinationVisitsTab:
         create_label(main_frame, "💉 Vaccinations & Vet Visits", font=get_title_font()).pack(pady=(20, 15))
 
         # Create a frame for the canvas and scrollbar
-        canvas_frame = create_frame(main_frame, fg_color="#ffc487")
+        canvas_frame = create_frame(main_frame, fg_color="#F0F8FF")
         canvas_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
         # Create the canvas and scrollable frame

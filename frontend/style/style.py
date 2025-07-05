@@ -50,43 +50,104 @@ def get_placeholder_bg():
 
 # === Components ===
 def create_button(master, text, command, color=PRIMARY_COLOR, width=200, **kwargs):
-    return ctk.CTkButton(
+    # Create a darker hover color based on the base color
+    if color.startswith("#"):
+        color_rgb = tuple(int(color[i:i+2], 16) for i in (1, 3, 5))
+        hover_rgb = tuple(max(0, int(c * 0.85)) for c in color_rgb)
+        hover_color = f"#{hover_rgb[0]:02x}{hover_rgb[1]:02x}{hover_rgb[2]:02x}"
+    else:
+        hover_color = PRIMARY_HOVER_COLOR
+    
+    btn = ctk.CTkButton(
         master,
         text=text,
         fg_color=color,
-        hover_color=PRIMARY_HOVER_COLOR,
+        hover_color=hover_color,
         corner_radius=8,
         font=get_button_font(),
         command=command,
         width=width,
         **kwargs
     )
+    
+    # Add hover effects
+    def on_enter(event):
+        btn.configure(corner_radius=10)
+    
+    def on_leave(event):
+        btn.configure(corner_radius=8)
+    
+    btn.bind("<Enter>", on_enter)
+    btn.bind("<Leave>", on_leave)
+    
+    return btn
 
 def create_back_button(master, text, command, color=SECONDARY_COLOR, width=200, **kwargs):
-    return ctk.CTkButton(
+    # Create a darker hover color based on the base color
+    if color.startswith("#"):
+        color_rgb = tuple(int(color[i:i+2], 16) for i in (1, 3, 5))
+        hover_rgb = tuple(max(0, int(c * 0.85)) for c in color_rgb)
+        hover_color = f"#{hover_rgb[0]:02x}{hover_rgb[1]:02x}{hover_rgb[2]:02x}"
+    else:
+        hover_color = DANGER_HOVER
+    
+    btn = ctk.CTkButton(
         master,
         text=text,
         fg_color=color,
-        hover_color=DANGER_HOVER,
+        hover_color=hover_color,
         corner_radius=8,
         font=get_button_font(),
         command=command,
         width=width,
         **kwargs
     )
+    
+    # Add hover effects
+    def on_enter(event):
+        btn.configure(corner_radius=10)
+    
+    def on_leave(event):
+        btn.configure(corner_radius=8)
+    
+    btn.bind("<Enter>", on_enter)
+    btn.bind("<Leave>", on_leave)
+    
+    return btn
 
 def create_exit_button(master, text, command, color=DANGER_COLOR, width=200, **kwargs):
-    return ctk.CTkButton(
+    # Create a darker hover color based on the base color
+    if color.startswith("#"):
+        color_rgb = tuple(int(color[i:i+2], 16) for i in (1, 3, 5))
+        hover_rgb = tuple(max(0, int(c * 0.85)) for c in color_rgb)
+        hover_color = f"#{hover_rgb[0]:02x}{hover_rgb[1]:02x}{hover_rgb[2]:02x}"
+    else:
+        hover_color = DANGER_HOVER
+    
+    btn = ctk.CTkButton(
         master,
         text=text,
         fg_color=color,
-        hover_color=DANGER_HOVER,
+        hover_color=hover_color,
         corner_radius=8,
         font=get_button_font(),
         command=command,
         width=width,
         **kwargs
     )
+    
+    # Add hover effects
+    def on_enter(event):
+        btn.configure(corner_radius=10)
+    
+    def on_leave(event):
+        btn.configure(corner_radius=8)
+    
+    btn.bind("<Enter>", on_enter)
+    btn.bind("<Leave>", on_leave)
+    
+    return btn
+
 def create_label1(parent, text, font=None, **kwargs):
     return ctk.CTkLabel(parent, text=text, font=font, **kwargs)
 
@@ -103,7 +164,23 @@ def create_frame(master, fg_color=TRANSPARENT):
     return ctk.CTkFrame(master, fg_color=fg_color)
 
 def create_bento_button(parent, text, command, color="default", width=200, height=120):
-    """Create a bento-style button with rounded corners and shadow"""
+    """Create a bento-style button with rounded corners and enhanced hover effects"""
+    
+    # Define hover colors based on the base color
+    if color == "default":
+        base_color = "#F0F2F5"
+        hover_color = "#E1E5EA"  # Slightly darker for better contrast
+    else:
+        # Create a darker version of the provided color for hover
+        base_color = color
+        # Convert hex to RGB, darken by 15%, then back to hex
+        if color.startswith("#"):
+            color_rgb = tuple(int(color[i:i+2], 16) for i in (1, 3, 5))
+            hover_rgb = tuple(max(0, int(c * 0.85)) for c in color_rgb)
+            hover_color = f"#{hover_rgb[0]:02x}{hover_rgb[1]:02x}{hover_rgb[2]:02x}"
+        else:
+            hover_color = color
+    
     btn = ctk.CTkButton(
         parent,
         text=text,
@@ -112,13 +189,25 @@ def create_bento_button(parent, text, command, color="default", width=200, heigh
         height=height,
         corner_radius=12,
         border_width=0,
-        fg_color=("#F0F2F5", "#2A2D35") if color == "default" else color,
-        hover_color=("#DCE0E5", "#373B45") if color == "default" else color,
+        fg_color=base_color,
+        hover_color=hover_color,
         font=get_button_font(size=16),
-        text_color=("#2A2D35", "#F0F2F5")
+        text_color="#2A2D35"
     )
-    # Add shadow effect
+    
+    # Add enhanced visual effects
     btn.configure(border_spacing=10)
+    
+    # Add hover event bindings for additional effects
+    def on_enter(event):
+        btn.configure(corner_radius=14)  # Slightly increase corner radius on hover
+    
+    def on_leave(event):
+        btn.configure(corner_radius=12)  # Return to original corner radius
+    
+    btn.bind("<Enter>", on_enter)
+    btn.bind("<Leave>", on_leave)
+    
     return btn
 
 
@@ -157,15 +246,30 @@ def apply_uniform_layout_style(parent, bg_color="#F0F8FF"):
     return main_frame
 
 def create_styled_back_button(parent, text, command, width=220):
-    """Create a styled back button with light brown color"""
-    return ctk.CTkButton(
+    """Create a styled back button with light brown color and enhanced hover effects"""
+    base_color = "#b8a38a"  # Light brown color
+    hover_color = "#a8927a"  # Darker brown for hover effect
+    
+    btn = ctk.CTkButton(
         parent,
         text=text,
         command=command,
         width=width,
         corner_radius=8,
         font=get_button_font(),
-        fg_color="#b8a38a",  # Light brown color
-        hover_color="#c9b69a",  # Slightly lighter brown for hover effect
+        fg_color=base_color,
+        hover_color=hover_color,
         text_color="#222222"  # Dark text color for contrast
     )
+    
+    # Add hover effects
+    def on_enter(event):
+        btn.configure(corner_radius=10)
+    
+    def on_leave(event):
+        btn.configure(corner_radius=8)
+    
+    btn.bind("<Enter>", on_enter)
+    btn.bind("<Leave>", on_leave)
+    
+    return btn
